@@ -41,6 +41,6 @@ The project is built as part of our Computer Science coursework to practice full
 ### Installation
 
 ```bash
-git clone https://github.com/Genesis-Z-R/Project-Group-39.git
+git clone https://github.com/Genesis-Z-R/Group-39.git
 cd quoraclone
 npm install
