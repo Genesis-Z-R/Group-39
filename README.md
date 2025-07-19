@@ -1,28 +1,46 @@
-# Fact-Checking API
+# Project-Group-39
+Mobile App Dev 
+# Bisa!
 
-A REST API for fact-checking using Groq's LLaMA 3 model.
+## Overview
 
-## Endpoints
+Bisa! is a group project aimed at replicating the core features of Quora. It allows users to:
 
-- `POST /api/fact-check`  
-  Performs a single fact-check and returns verdict, confidence, reasoning, and sources in a human-readable format.
+- Post and answer questions
+- Upvote helpful content
+- Follow topics and users
+- Comment and interact on posts
 
-- `POST /api/fact-check-bulk`  
-  Accepts an array of facts (max 50) and returns structured analysis for each.
+The project is built as part of our Computer Science coursework to practice full-stack development, UI/UX design, and collaborative software engineering.
 
-- `POST /api/fact-check-file`  
-  Accepts plain text content (max 100KB), line-by-line fact-checking.
+---
 
-- `GET /api/health`  
-  Returns API health status and metadata.
+## 🌟 Features
 
-## Environment Variables
+- 📝 Ask & Answer Questions  
+- 👍 Upvote System  
+- 🧵 Comments and Discussions  
+- 🔍 Topic & User Following  
+- 🔐 Authentication & User Profiles
+- AI fact checker 
 
-- `GROQ_API_KEY`: Your API key for accessing the Groq LLaMA 3 model  
-- `PORT`: Port to run the server on (default: 3000)
+---
 
-## Notes
+## 🛠️ Tech Stack
 
-- Rate-limited to prevent abuse  
-- Concurrency control prevents flooding the Groq API  
-- Returns clean, readable responses for humans and apps
+- **Frontend:** React
+- **Backend:** Springboot
+- **Database:** MySQL
+- **Authentication:** 
+- **Other Tools:** Figma for UI, Git & GitHub for version control
+
+---
+
+
+
+### Installation
+
+```bash
+git clone https://github.com/Genesis-Z-R/Project-Group-39.git
+cd quoraclone
+npm install
