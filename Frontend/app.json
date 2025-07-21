@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Bisa",
+    "slug": "my-expo-app",
+    "scheme": "bisa",
+    "version": "1.0.0",
+
+    
+    "web": {
+      "favicon": "./assets/QuoraR.jpeg"
+    },
+    "experiments": {
+      "tsconfigPaths": true
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "orientation": "portrait",
+    "icon": "./assets/bisa-logo.jpeg",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    }
+  }
+}
