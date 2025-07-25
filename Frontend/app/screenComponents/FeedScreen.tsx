@@ -1,6 +1,5 @@
 import { Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import { SearchBar } from 'react-native-screens'
+import * as React from 'react'
 import "../../global"
 import { Ionicons, MaterialCommunityIcons, Feather, FontAwesome } from '@expo/vector-icons';
 // import * as Icons from "react-native-heroicons"
@@ -26,7 +25,7 @@ const FeedScreen = () => {
 
                     <TouchableOpacity style= {styles.action}>
                         <FontAwesome name="pencil-square-o" size={24} color="#8395a7" />
-                        <Text className='text-red-500'>Answer</Text>
+                        <Text style={{ color: 'red' }}>Answer</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style= {styles.action} >
