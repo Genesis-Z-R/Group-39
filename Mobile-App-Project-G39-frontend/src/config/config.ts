@@ -17,6 +17,17 @@ export const config = {
     measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || 'G-ME6ZSFDF5Z',
   },
   
+  // Social Configuration
+  social: {
+    google: {
+      clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '967634611386-k81tvmi0oj8f0sgt5s8b4urbq7jnja3d.apps.googleusercontent.com',
+    },
+    facebook: {
+      appId: process.env.EXPO_PUBLIC_FACEBOOK_APP_ID || '1234567890123456', // Replace with your Facebook App ID
+      clientId: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID || '1234567890123456', // Replace with your Facebook App ID
+    },
+  },
+  
   // App Configuration
   app: {
     name: 'Bisa',

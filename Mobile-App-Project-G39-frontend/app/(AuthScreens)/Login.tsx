@@ -25,7 +25,9 @@ import {
 } from 'firebase/auth';
 import { useAuth } from '../../src/context/authContext';
 import * as Google from 'expo-auth-session/providers/google';
+import * as Facebook from 'expo-auth-session/providers/facebook';
 import { syncUserWithBackend } from '../../src/services/api';
+import { config } from '../../src/config/config';
 
 // Validation utilities
 const validateEmail = (email: string): boolean => {
@@ -89,7 +91,12 @@ const Login = () => {
 
   // Google AuthSession setup
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
-    clientId: '967634611386-k81tvmi0oj8f0sgt5s8b4urbq7jnja3d.apps.googleusercontent.com',
+    clientId: config.social.google.clientId,
+  });
+
+  // Facebook AuthSession setup
+  const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
+    clientId: config.social.facebook.clientId,
   });
 
   // Function to sync user with backend
@@ -129,10 +136,39 @@ const Login = () => {
     }
   }, [googlePromptAsync, router, setToken]);
 
-  // Facebook handler: feature coming soon
-  const handleFacebookSignIn = useCallback(() => {
-    Alert.alert('Feature coming soon!', 'Facebook login will be available in a future update.');
-  }, []);
+  // Facebook sign-in handler
+  const handleFacebookSignIn = useCallback(async () => {
+    try {
+      setLoading(true);
+      const result = await facebookPromptAsync();
+      
+      if (result?.type === 'success' && result.authentication?.accessToken) {
+        // Create Facebook credential
+        const credential = FacebookAuthProvider.credential(result.authentication.accessToken);
+        
+        // Sign in with Firebase
+        const userCredential = await signInWithCredential(auth, credential);
+        const token = await userCredential.user.getIdToken(true);
+        setToken(token);
+        
+        // Sync user with backend
+        await syncUserToBackend(token);
+        
+        console.log('✅ Facebook sign-in successful:', userCredential.user.uid);
+        router.replace('/(drawer)/(tabs)/Home');
+      } else if (result?.type === 'error') {
+        console.error('Facebook auth error:', result.error);
+        Alert.alert('Facebook Sign-In Failed', 'Authentication error. Please try again.');
+      } else if (result?.type === 'cancel') {
+        console.log('Facebook sign-in cancelled by user');
+      }
+    } catch (error: any) {
+      console.error('Facebook sign-in error:', error);
+      Alert.alert('Facebook Sign-In Failed', getFirebaseErrorMessage(error.code));
+    } finally {
+      setLoading(false);
+    }
+  }, [facebookPromptAsync, router, setToken]);
 
   // Validate form inputs
   const validateForm = (): boolean => {
@@ -403,7 +439,7 @@ const Login = () => {
                 <TouchableOpacity
                   style={[styles.socialButton, styles.facebookButton]}
                   onPress={handleFacebookSignIn}
-                  disabled={true}
+                  disabled={loading || !facebookRequest}
                   accessibilityLabel="Sign in with Facebook"
                   accessibilityRole="button"
                 >
