@@ -8,7 +8,9 @@ import com.bisa.model.FactCheck;
 import com.bisa.model.Share;
 import com.bisa.repository.ShareRepository;
 import com.bisa.dto.ShareRequest;
+import com.bisa.dto.PostDetailResponse;
 import com.bisa.service.FactCheckService;
+import com.bisa.service.PostDetailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -22,12 +24,16 @@ public class PostController {
     private final CommentRepository commentRepository;
     private final ShareRepository shareRepository;
     private final FactCheckService factCheckService;
+    private final PostDetailService postDetailService;
 
-    public PostController(PostRepository postRepository, CommentRepository commentRepository, ShareRepository shareRepository, FactCheckService factCheckService) {
+    public PostController(PostRepository postRepository, CommentRepository commentRepository, 
+                        ShareRepository shareRepository, FactCheckService factCheckService,
+                        PostDetailService postDetailService) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.shareRepository = shareRepository;
         this.factCheckService = factCheckService;
+        this.postDetailService = postDetailService;
     }
 
     @GetMapping
@@ -40,6 +46,48 @@ public class PostController {
         return postRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // New PostDetail endpoint for full-screen view
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<PostDetailResponse> getPostDetail(@PathVariable Long id, 
+                                                          @RequestParam(required = false) Long userId) {
+        Optional<PostDetailResponse> postDetail = postDetailService.getPostDetail(id, userId);
+        return postDetail.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Track post view for analytics
+    @PostMapping("/{id}/view")
+    public ResponseEntity<Map<String, Object>> trackPostView(@PathVariable Long id) {
+        if (!postRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        postDetailService.incrementViewCount(id);
+        
+        Map<String, Object> response = Map.of(
+            "postId", id,
+            "viewTracked", true,
+            "timestamp", System.currentTimeMillis()
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+
+    // Get paginated comments for a post
+    @GetMapping("/{id}/comments/paginated")
+    public ResponseEntity<List<PostDetailResponse.CommentInfo>> getCommentsPaginated(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        if (!postRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        List<PostDetailResponse.CommentInfo> comments = postDetailService.getCommentsForPost(id, page, size);
+        return ResponseEntity.ok(comments);
     }
 
     @PostMapping

@@ -13,14 +13,23 @@ import java.io.IOException;
 public class FirebaseConfig {
     @Value("${firebase.service.account.key.path}")
     private String serviceAccountKeyPath;
+    
     @PostConstruct
     public void init() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream(serviceAccountKeyPath.replace("classpath:", "src/main/resources/"));
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build();
-        if (FirebaseApp.getApps().isEmpty()) {
-            FirebaseApp.initializeApp(options);
+        try {
+            // Try to load the service account file
+            String filePath = serviceAccountKeyPath.replace("classpath:", "src/main/resources/");
+            FileInputStream serviceAccount = new FileInputStream(filePath);
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+            if (FirebaseApp.getApps().isEmpty()) {
+                FirebaseApp.initializeApp(options);
+            }
+        } catch (Exception e) {
+            // If Firebase service account is not available, log warning but don't fail
+            System.out.println("Warning: Firebase service account not found. Firebase features will be disabled.");
+            System.out.println("Expected file: " + serviceAccountKeyPath);
         }
     }
 } 

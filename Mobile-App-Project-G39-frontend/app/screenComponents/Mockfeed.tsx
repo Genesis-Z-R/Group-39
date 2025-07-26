@@ -1,4 +1,4 @@
-// screens/FeedScreen.tsx - Ready to use with mock data
+// screens/FeedScreen.tsx - Ready to use with real API data
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -17,8 +17,9 @@ import {
 import { Video } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import ReadMore from 'react-native-read-more-text';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/authContext';
-import { fetchPosts } from '../../src/services/api';
+import { fetchPosts, upvotePost, sharePost } from '../../src/services/api';
 import FactCheckModal from '../components/FactCheckModal';
 import ShareModal from '../components/ShareModal';
 
@@ -44,8 +45,7 @@ interface Post {
   createdAt: string;
 }
 
-
-// Mock data - Ready to use!
+// Mock data as fallback
 const mockPosts: Post[] = [
   {
     id: '1',
@@ -130,59 +130,8 @@ const mockPosts: Post[] = [
     shares: 15,
     isUpvoted: false,
     createdAt: '2024-01-11T11:25:00Z'
-  },
-  {
-    id: '6',
-    user: {
-      id: 'user6',
-      name: 'Alex Rivera',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
-      credentials: 'Mobile App Developer'
-    },
-    question: 'React Native vs Flutter: Which should I choose for my next project?',
-    answer: 'Both are excellent choices, but here\'s my take: Choose React Native if you have a web development background with JavaScript/TypeScript, want to share code with web apps, or need extensive third-party library support. Choose Flutter if you want consistent UI across platforms, better performance for complex animations, or if you\'re comfortable with Dart. Consider your team\'s expertise and project requirements.',
-    upvotes: 312,
-    comments: 78,
-    shares: 19,
-    isUpvoted: false,
-    createdAt: '2024-01-10T16:30:00Z'
-  },
-  {
-    id: '7',
-    user: {
-      id: 'user7',
-      name: 'Sophie Martin',
-      avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&h=100&fit=crop&crop=face',
-      credentials: 'Product Manager at Spotify'
-    },
-    question: 'How do you prioritize features in a product roadmap?',
-    answer: 'Feature prioritization is both art and science. I use a framework combining: Impact vs Effort matrix - high impact, low effort wins. User feedback and data - what are users actually asking for? Business goals alignment - does it move key metrics? Technical debt consideration - sometimes you need to fix infrastructure. Market timing - being first vs being better. Always validate assumptions with user research before committing resources.',
-    mediaUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop',
-    mediaType: 'image',
-    upvotes: 198,
-    comments: 41,
-    shares: 27,
-    isUpvoted: true,
-    createdAt: '2024-01-09T12:15:00Z'
-  },
-  {
-    id: '8',
-    user: {
-      id: 'user8',
-      name: 'James Wilson',
-      avatar: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=100&h=100&fit=crop&crop=face',
-      credentials: 'Cybersecurity Expert'
-    },
-    question: 'What are the most common security vulnerabilities developers should avoid?',
-    answer: 'Security should be built in, not bolted on. Top vulnerabilities to avoid: SQL injection - always use parameterized queries. Cross-site scripting (XSS) - sanitize all user inputs. Insecure authentication - implement proper session management. Broken access control - verify permissions on every request. Security misconfiguration - keep software updated and properly configured. Use security linters and automated testing in your CI/CD pipeline.',
-    upvotes: 423,
-    comments: 67,
-    shares: 38,
-    isUpvoted: false,
-    createdAt: '2024-01-08T09:45:00Z'
   }
 ];
-
 
 const Mockfeed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -200,6 +149,7 @@ const Mockfeed: React.FC = () => {
   const [selectedPostForShare, setSelectedPostForShare] = useState<Post | null>(null);
 
   const { token } = useAuth();
+  const router = useRouter();
 
   const loadPosts = useCallback(async (isRefresh: boolean = false) => {
     console.log('Mockfeed: loadPosts called, token:', !!token);
@@ -211,7 +161,28 @@ const Mockfeed: React.FC = () => {
         console.log('Mockfeed: Attempting to fetch posts from backend...');
         const data = await fetchPosts(token);
         console.log('Mockfeed: Backend response:', data);
-        setPosts(data);
+        
+        // Transform backend data to match frontend format
+        const transformedPosts = data.map((post: any) => ({
+          id: post.id.toString(),
+          user: {
+            id: post.user.id.toString(),
+            name: post.user.name,
+            avatar: post.user.avatar,
+            credentials: post.user.credentials
+          },
+          question: post.question,
+          answer: post.answer,
+          mediaUrl: post.mediaUrl,
+          mediaType: post.mediaType,
+          upvotes: post.upvotes,
+          comments: post.comments || 0,
+          shares: post.shares,
+          isUpvoted: post.isUpvoted || false,
+          createdAt: post.createdAt
+        }));
+        
+        setPosts(transformedPosts);
         setUsingMockData(false);
         setError(null);
       } else {
@@ -254,18 +225,40 @@ const Mockfeed: React.FC = () => {
   // Always show mock data if posts are empty after loading
   const displayPosts = posts.length > 0 ? posts : mockPosts;
 
-  const handleUpvote = (postId: string) => {
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              isUpvoted: !post.isUpvoted,
-              upvotes: post.isUpvoted ? post.upvotes - 1 : post.upvotes + 1,
-            }
-          : post
-      )
-    );
+  const handleUpvote = async (postId: string) => {
+    try {
+      // Optimistic update
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                isUpvoted: !post.isUpvoted,
+                upvotes: post.isUpvoted ? post.upvotes - 1 : post.upvotes + 1,
+              }
+            : post
+        )
+      );
+
+      // Call API if we have a token
+      if (token) {
+        await upvotePost(postId, token);
+      }
+    } catch (error) {
+      console.error('Failed to upvote:', error);
+      // Revert optimistic update on error
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                isUpvoted: !post.isUpvoted,
+                upvotes: post.isUpvoted ? post.upvotes + 1 : post.upvotes - 1,
+              }
+            : post
+        )
+      );
+    }
   };
 
   const handleComment = (postId: string) => {
@@ -283,7 +276,7 @@ const Mockfeed: React.FC = () => {
     setSelectedPostForFactCheck(null);
   };
 
-  const handleShare = (postId: string) => {
+  const handleShare = async (postId: string) => {
     const post = posts.find((p) => p.id === postId) || mockPosts.find((p) => p.id === postId);
     if (post) {
       setSelectedPostForShare(post);
@@ -291,15 +284,27 @@ const Mockfeed: React.FC = () => {
     }
   };
 
-  const handleShareSuccess = () => {
-    if (selectedPostForShare) {
-      setPosts((prev) =>
-        prev.map((post) =>
-          post.id === selectedPostForShare.id
-            ? { ...post, shares: post.shares + 1 }
-            : post
-        )
-      );
+  const handleShareSuccess = async () => {
+    if (selectedPostForShare && token) {
+      try {
+        // Call API
+        await sharePost(selectedPostForShare.id, token, {
+          shareType: 'native',
+          platform: 'app',
+          userAgent: 'Bisa Mobile App'
+        });
+        
+        // Update UI
+        setPosts((prev) =>
+          prev.map((post) =>
+            post.id === selectedPostForShare.id
+              ? { ...post, shares: post.shares + 1 }
+              : post
+          )
+        );
+      } catch (error) {
+        console.error('Failed to share:', error);
+      }
     }
     setIsShareModalVisible(false);
     setSelectedPostForShare(null);
@@ -307,6 +312,20 @@ const Mockfeed: React.FC = () => {
 
   const handleFollow = (userId: string) => {
     Alert.alert('Follow', `Follow user ${userId}`);
+  };
+
+  const handleReadMore = (post: Post) => {
+    router.push({
+      pathname: '/PostDetail',
+      params: { postId: post.id }
+    });
+  };
+
+  const handleUserPress = (user: User) => {
+    router.push({
+      pathname: '/UserProfile',
+      params: { userId: user.id }
+    });
   };
 
   const formatTime = (dateString: string) => {
@@ -322,12 +341,17 @@ const Mockfeed: React.FC = () => {
   const renderPost = ({ item }: { item: Post }) => (
     <View style={styles.postContainer}>
       <View style={styles.userInfo}>
-        <Image source={{ uri: item.user.avatar }} style={styles.avatar} />
-        <View style={styles.userDetails}>
-          <Text style={styles.userName}>{item.user.name}</Text>
-          {item.user.credentials && <Text style={styles.userCredentials}>{item.user.credentials}</Text>}
-          <Text style={styles.timestamp}>{formatTime(item.createdAt)}</Text>
-        </View>
+        <TouchableOpacity 
+          style={styles.userInfoTouchable}
+          onPress={() => handleUserPress(item.user)}
+        >
+          <Image source={{ uri: item.user.avatar }} style={styles.avatar} />
+          <View style={styles.userDetails}>
+            <Text style={styles.userName}>{item.user.name}</Text>
+            {item.user.credentials && <Text style={styles.userCredentials}>{item.user.credentials}</Text>}
+            <Text style={styles.timestamp}>{formatTime(item.createdAt)}</Text>
+          </View>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.followButton} onPress={() => handleFollow(item.user.id)}>
           <Text style={styles.followButtonText}>Follow</Text>
         </TouchableOpacity>
@@ -338,7 +362,9 @@ const Mockfeed: React.FC = () => {
       <ReadMore
         numberOfLines={3}
         renderTruncatedFooter={(handlePress:any) => (
-          <Text style={{ color: '#007AFF', marginTop: 4 }} onPress={handlePress}>Read More</Text>
+          <TouchableOpacity onPress={() => handleReadMore(item)}>
+            <Text style={{ color: '#007AFF', marginTop: 4 }}>Read More</Text>
+          </TouchableOpacity>
         )}
         renderRevealedFooter={(handlePress: any) => (
           <Text style={{ color: '#007AFF', marginTop: 4 }} onPress={handlePress}>Show Less</Text>
@@ -523,6 +549,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginBottom: 12,
+  },
+  userInfoTouchable: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginRight: 12,
   },
   avatar: {
     width: 40,

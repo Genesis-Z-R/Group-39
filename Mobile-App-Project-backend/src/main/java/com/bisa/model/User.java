@@ -3,6 +3,7 @@ package com.bisa.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import java.time.Instant;
 
 @Entity
 @Table(name = "app_user")
@@ -17,8 +18,14 @@ public class User {
     private String name;
     private String avatar;
     private String credentials;
+    private String bio;
+    private String location;
+    private String website;
+    private Instant createdAt;
 
-    public User() {}
+    public User() {
+        this.createdAt = Instant.now();
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -34,4 +41,16 @@ public class User {
 
     public String getCredentials() { return credentials; }
     public void setCredentials(String credentials) { this.credentials = credentials; }
+
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
+
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+
+    public String getWebsite() { return website; }
+    public void setWebsite(String website) { this.website = website; }
+
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 } 

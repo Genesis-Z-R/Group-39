@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: bisa-postgres
+    environment:
+      POSTGRES_DB: bisa_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bisa-network
+
+  # Backend API
+  backend:
+    build: ./Mobile-App-Project-backend
+    container_name: bisa-backend
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/bisa_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres123
+      SERVER_PORT: 8080
+      LOG_LEVEL: INFO
+      SHOW_SQL: false
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - bisa-network
+    restart: unless-stopped
+
+  # Frontend App
+  frontend:
+    build: ./Mobile-App-Project-G39-frontend
+    container_name: bisa-frontend
+    environment:
+      EXPO_PUBLIC_API_URL: http://localhost:8080/api
+      EXPO_PUBLIC_ENVIRONMENT: production
+      EXPO_PUBLIC_ENABLE_MOCK_DATA: false
+      EXPO_PUBLIC_DEBUG_LOGS: false
+    ports:
+      - "19006:19006"
+    depends_on:
+      - backend
+    networks:
+      - bisa-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  bisa-network:
+    driver: bridge 

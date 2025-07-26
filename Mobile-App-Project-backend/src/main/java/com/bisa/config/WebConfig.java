@@ -10,7 +10,15 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:8081", "http://localhost:8082", "http://localhost:3000", "http://localhost:19006")
+                .allowedOrigins(
+                    "http://localhost:8081", 
+                    "http://localhost:8082", 
+                    "http://localhost:3000", 
+                    "http://localhost:19006",
+                    "https://your-production-domain.com", // Add your production domain
+                    "https://bisa-app.vercel.app", // Example production URL
+                    "https://bisa-app.netlify.app"  // Example production URL
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)

@@ -1,13 +1,15 @@
-const BASE_URL = "http://localhost:8080/api/users"
+import { config } from '../../src/config/config';
+
+const BASE_URL = config.api.baseUrl + "/users";
+
 export const createUser = async(email: string, password: string, username: string, token: string) => {
-    const res = await fetch(`${BASE_URL}/firebase`, {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({email, password, username})
-    })
-    console.log("res", res)
-    return res.json()
+  const response = await fetch(BASE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({email, password, username})
+  });
+  return response.json();
 }

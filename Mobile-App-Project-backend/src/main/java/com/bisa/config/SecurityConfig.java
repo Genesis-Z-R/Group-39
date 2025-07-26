@@ -30,7 +30,8 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions().sameOrigin()) // Secure H2 console access
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/**").authenticated() // <--- Require auth for all API endpoints
+                .requestMatchers("/api/hello/health").permitAll() // Allow health check without auth
+                .requestMatchers("/api/**").authenticated() // Require auth for all other API endpoints
                 .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
             )
@@ -43,7 +44,7 @@ public class SecurityConfig {
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                 throws ServletException, IOException {
             String uri = request.getRequestURI();
-            if (uri.startsWith("/h2-console")) {
+            if (uri.startsWith("/h2-console") || uri.equals("/api/hello/health")) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -52,7 +53,7 @@ public class SecurityConfig {
                 String token = header.substring(7);
                 try {
                     FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-                    request.setAttribute("firebaseToken", decodedToken); // <-- Add this line
+                    request.setAttribute("firebaseToken", decodedToken);
                     Authentication auth = new UsernamePasswordAuthenticationToken(decodedToken.getUid(), null, null);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 } catch (Exception e) {

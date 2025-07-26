@@ -118,4 +118,59 @@ export async function getFactCheckStatus(postId: string, token: string) {
   return apiRequest(`/posts/${postId}/fact-check/status`, {}, token);
 }
 
+// PostDetail API Functions
+export async function fetchPostDetail(postId: string, userId?: string, token?: string) {
+  const url = `/posts/${postId}/detail${userId ? `?userId=${userId}` : ''}`;
+  return apiRequest(url, {}, token);
+}
+
+export async function trackPostView(postId: string, token?: string) {
+  try {
+    return await apiRequest(`/posts/${postId}/view`, { method: 'POST' }, token);
+  } catch (error) {
+    console.warn('Failed to track post view:', error);
+    return null;
+  }
+}
+
+export async function fetchCommentsPaginated(
+  postId: string, 
+  page: number = 0, 
+  size: number = 10, 
+  token?: string
+) {
+  return apiRequest(`/posts/${postId}/comments/paginated?page=${page}&size=${size}`, {}, token);
+}
+
+// UserProfile API Functions
+export async function fetchUserProfile(userId: string, token?: string) {
+  return apiRequest(`/users/${userId}/profile`, {}, token);
+}
+
+export async function fetchUserPosts(userId: string, page: number = 0, size: number = 10, token?: string) {
+  return apiRequest(`/users/${userId}/posts?page=${page}&size=${size}`, {}, token);
+}
+
+export async function followUserProfile(userId: string, token: string, followerId: string) {
+  return apiRequest(`/users/${userId}/follow`, {
+    method: 'POST',
+    headers: { 'X-User-Id': followerId },
+  }, token);
+}
+
+export async function unfollowUserProfile(userId: string, token: string, followerId: string) {
+  return apiRequest(`/users/${userId}/unfollow`, {
+    method: 'DELETE',
+    headers: { 'X-User-Id': followerId },
+  }, token);
+}
+
+export async function getUserFollowers(userId: string, page: number = 0, size: number = 20, token?: string) {
+  return apiRequest(`/users/${userId}/followers?page=${page}&size=${size}`, {}, token);
+}
+
+export async function getUserFollowing(userId: string, page: number = 0, size: number = 20, token?: string) {
+  return apiRequest(`/users/${userId}/following?page=${page}&size=${size}`, {}, token);
+}
+
 // Add more endpoints as needed... 

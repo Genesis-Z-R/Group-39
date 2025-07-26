@@ -3,19 +3,18 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { config } from "./config";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAdE0DrlPCp1kLEbmwOo-xYe5k2WNAGph8",
-  authDomain: "vesterapp-46245.firebaseapp.com",
-  projectId: "vesterapp-46245",
-  storageBucket: "vesterapp-46245.firebasestorage.app",
-  messagingSenderId: "157448495564",
-  appId: "1:157448495564:web:37f4e52418f1f9d71cbd69",
-  measurementId: "G-ME6ZSFDF5Z"
+  apiKey: config.firebase.apiKey,
+  authDomain: config.firebase.authDomain,
+  projectId: config.firebase.projectId,
+  storageBucket: config.firebase.storageBucket,
+  messagingSenderId: config.firebase.messagingSenderId,
+  appId: config.firebase.appId,
+  measurementId: config.firebase.measurementId
 };
 
 // Initialize Firebase

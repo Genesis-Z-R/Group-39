@@ -31,7 +31,23 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(drawer)" />
+        <Stack.Screen 
+          name="PostDetail" 
+          options={{
+            headerShown: false,
+            presentation: 'modal'
+          }}
+        />
+        <Stack.Screen 
+          name="UserProfile" 
+          options={{
+            headerShown: false,
+            presentation: 'modal'
+          }}
+        />
+      </Stack>
     </ThemeProvider>
   );
 }
