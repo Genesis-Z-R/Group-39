@@ -1,0 +1,53 @@
+# Maven
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+
+# Secret keys
+src/main/resources/firebase-service-account.json
+
+# Other
+*.swp
+*.swo
+
+# Node (if any frontend code is here)
+node_modules/
+
+# Test output
+/test-output/
+
+# Build tools
+/build/
+
+# JRebel
+rebel.xml
+rebel-remote.xml
+
+# Spring Boot devtools
+.spring-boot-devtools.properties
+
+# Local config
+application-local.properties
