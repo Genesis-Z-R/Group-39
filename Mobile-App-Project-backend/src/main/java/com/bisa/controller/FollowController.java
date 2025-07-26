@@ -1,7 +1,9 @@
 package com.bisa.controller;
 
 import com.bisa.model.Follow;
+import com.bisa.model.User;
 import com.bisa.repository.FollowRepository;
+import com.bisa.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -11,8 +13,11 @@ import java.util.Optional;
 @RequestMapping("/api/follows")
 public class FollowController {
     private final FollowRepository followRepository;
-    public FollowController(FollowRepository followRepository) {
+    private final UserRepository userRepository;
+    
+    public FollowController(FollowRepository followRepository, UserRepository userRepository) {
         this.followRepository = followRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping
@@ -36,9 +41,15 @@ public class FollowController {
     public ResponseEntity<Follow> updateFollow(@PathVariable Long id, @RequestBody Follow followDetails) {
         Optional<Follow> followOpt = followRepository.findById(id);
         if (followOpt.isEmpty()) return ResponseEntity.notFound().build();
+        
         Follow follow = followOpt.get();
         follow.setType(followDetails.getType());
-        follow.setFollowingId(followDetails.getFollowingId());
+        
+        // Update followed user if provided
+        if (followDetails.getFollowedUser() != null) {
+            follow.setFollowedUser(followDetails.getFollowedUser());
+        }
+        
         return ResponseEntity.ok(followRepository.save(follow));
     }
 

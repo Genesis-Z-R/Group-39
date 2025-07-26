@@ -78,4 +78,24 @@ public class FactCheck {
 
     public String getCheckedBy() { return checkedBy; }
     public void setCheckedBy(String checkedBy) { this.checkedBy = checkedBy; }
+
+    // Helper method to get a summary of the fact check
+    public String getSummary() {
+        if (validityStatus == null || aiAnalysis == null) {
+            return "Fact check not available";
+        }
+        
+        StringBuilder summary = new StringBuilder();
+        summary.append("Status: ").append(validityStatus);
+        
+        if (accuracyScore != null) {
+            summary.append(" | Accuracy: ").append(String.format("%.1f%%", accuracyScore * 100));
+        }
+        
+        if (confidenceLevel != null) {
+            summary.append(" | Confidence: ").append(confidenceLevel);
+        }
+        
+        return summary.toString();
+    }
 } 

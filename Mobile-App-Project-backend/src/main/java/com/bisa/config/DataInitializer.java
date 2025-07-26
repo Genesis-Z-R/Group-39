@@ -63,7 +63,7 @@ public class DataInitializer {
                         if (!follower.getId().equals(following.getId())) {
                             Follow follow = new Follow();
                             follow.setFollower(follower);
-                            follow.setFollowingId(following.getId());
+                            follow.setFollowedUser(following);
                             follow.setType("user");
                             followRepo.save(follow);
                         }
