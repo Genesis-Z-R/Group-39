@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "BISA",
+    "slug": "bisa",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/bisa-logo.jpeg",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.classic_genius.bisa"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.classic_genius.bisa",
+      "versionCode": 2,
+      "permissions": [
+        "INTERNET",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b62e59ea-c8a7-49d7-9df0-b15bbce055a3"
+      }
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
